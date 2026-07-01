@@ -14,6 +14,8 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-7.0-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 
+![SBI FlowSense 3D system overview](docs/assets/flowsense-hero-3d.svg)
+
 ---
 
 </div>
@@ -33,6 +35,8 @@ Transaction Stream → Life-Event Detection → Journey Orchestration → AI Age
 ---
 
 ## System Architecture
+
+![SBI FlowSense layered 3D architecture](docs/assets/flowsense-architecture-3d.svg)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
@@ -256,6 +260,8 @@ Navigate to **http://localhost:5173**
 
 ## Demo Flow
 
+![SBI FlowSense first salary demo storyboard](docs/assets/flowsense-demo-journey.svg)
+
 ```
 1. Sign In          →  Enter account number + 6-digit MPIN verification
 2. Dashboard        →  View balance, stats, recent transactions
@@ -415,6 +421,7 @@ cd frontend && npm run dev
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Detailed system architecture and design decisions |
 | [plan.md](docs/plan.md) | Project plan with 8 epics and task tracking |
 | [WINNING_GUIDE.md](docs/WINNING_GUIDE.md) | Judge-focused demo, deck, and final-week checklist |
+| [Visual assets](docs/assets/) | 3D README diagrams and demo storyboard SVGs |
 | [CLAUDE_CONTEXT.md](docs/CLAUDE_CONTEXT.md) | AI coding context and development guide |
 
 ---
