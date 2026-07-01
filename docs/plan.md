@@ -142,8 +142,21 @@ Build an MVP of FlowSense: an event-driven, agentic journey orchestrator for ban
 
 ## Next Steps
 
-1. Add unit tests for core detection logic.
-2. Add integration tests for all 3 life event flows.
-3. Add more agent persona variety (dynamic LLM responses).
-4. Polish UI for hackathon demo presentation.
-5. Prepare demo script and slides.
+1. Make the FIRST_SALARY + RELOCATION vertical slice flawless for the final demo.
+2. Add integration tests for the first-salary journey, from event ingestion to audit log.
+3. Add unit tests for core detection logic.
+4. Capture real UI screenshots for the pitch deck.
+5. Rehearse the demo script in `docs/WINNING_GUIDE.md`.
+
+## Hackathon Demo Priority
+
+The winning story is not "every possible banking journey." The priority is one polished vertical slice:
+
+1. First salary and rent events are published for one customer.
+2. FlowSense detects FIRST_SALARY and RELOCATION.
+3. A journey is created and the Acquisition Agent recommends salary account/SIP actions.
+4. The user approves with explicit consent.
+5. Mock execution writes `executed_actions` and `audit_log` records.
+6. The UI shows timeline, journey progress, agent message, consent, execution, and audit trail.
+
+Use [WINNING_GUIDE.md](WINNING_GUIDE.md) as the final pitch and demo checklist.

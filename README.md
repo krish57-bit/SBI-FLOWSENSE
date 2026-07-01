@@ -24,7 +24,7 @@ Traditional banking is **reactive** — customers must discover products, rememb
 
 ## Our Solution
 
-**SBI Sense** detects life events from transaction patterns in real-time and activates AI agents that deliver personalized banking recommendations — all with explicit user consent and an immutable audit trail.
+**FlowSense** detects life events from transaction patterns in real-time and activates AI agents that deliver personalized banking recommendations — all with explicit user consent and an immutable audit trail.
 
 ```
 Transaction Stream → Life-Event Detection → Journey Orchestration → AI Agent Recommendations → User Consent → Execution
@@ -36,7 +36,7 @@ Transaction Stream → Life-Event Detection → Journey Orchestration → AI Age
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                                    SBI SENSE PLATFORM                                   │
+│                                    FLOWSENSE PLATFORM                                   │
 │                                                                                         │
 │  ┌──────────────────────────────────────────────────────────────────────────────────┐    │
 │  │                          EXPERIENCE LAYER (React + Vite)                         │    │
@@ -209,8 +209,8 @@ Transaction Stream → Life-Event Detection → Journey Orchestration → AI Age
 ### 1. Clone & Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/sbi-sense.git
-cd sbi-sense
+git clone https://github.com/krish57-bit/SBI-FLOWSENSE.git
+cd SBI-FLOWSENSE
 ```
 
 ### 2. Start MongoDB
@@ -279,7 +279,7 @@ Navigate to **http://localhost:5173**
 ## Project Structure
 
 ```
-sbi-sense/
+sbi-flowsense/
 │
 ├── frontend/                          # React SPA (Vite)
 │   ├── public/
@@ -414,6 +414,7 @@ cd frontend && npm run dev
 | [PRD.md](docs/PRD.md) | Product requirements, personas, success criteria |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Detailed system architecture and design decisions |
 | [plan.md](docs/plan.md) | Project plan with 8 epics and task tracking |
+| [WINNING_GUIDE.md](docs/WINNING_GUIDE.md) | Judge-focused demo, deck, and final-week checklist |
 | [CLAUDE_CONTEXT.md](docs/CLAUDE_CONTEXT.md) | AI coding context and development guide |
 
 ---
