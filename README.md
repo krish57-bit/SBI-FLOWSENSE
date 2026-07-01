@@ -50,8 +50,6 @@ For the visual flow, see the interactive Data Flow diagram below. For implementa
 
 ## Data Flow
 
-GitHub README files do not support custom JavaScript, so this section uses a GitHub-native Mermaid diagram plus expandable step details.
-
 ```mermaid
 flowchart TD
   txn["Customer Transaction<br/>salary, rent, card, app activity"] --> ingest["Event Ingestion<br/>POST /events"]
