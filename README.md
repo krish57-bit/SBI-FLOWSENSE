@@ -6,7 +6,7 @@
 
 *Event-driven life-event detection, journey orchestration, and AI-powered banking recommendations — with consent-first execution and full auditability.*
 
-**Built for the Antigravity x SBI Hackathon**
+**Built for the SBI Hackathon @GFF 2026**
 
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
@@ -403,7 +403,7 @@ cd frontend && npm run dev
 
 <div align="center">
 
-**Built with purpose for the Antigravity x SBI Hackathon**
+**Built with purpose for the SBI Hackathon @GFF 2026**
 
 *Transforming reactive banking into proactive, AI-powered financial intelligence*
 
