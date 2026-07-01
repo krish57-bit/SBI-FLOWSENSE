@@ -34,54 +34,17 @@ Transaction Stream → Life-Event Detection → Journey Orchestration → AI Age
 
 ## System Architecture
 
-```mermaid
-flowchart LR
-  customer["Customer Banking Events<br/>salary, rent, card payments, app activity"]
-  frontend["React Experience Layer<br/>dashboard, journey tracker, agent cards"]
+SBI FlowSense is organized into five clear layers:
 
-  subgraph intelligence["FastAPI Intelligence Layer"]
-    ingestion["Event Ingestion<br/>POST /events"]
-    detector["Life-Event Detector<br/>FIRST_SALARY, RELOCATION, PAYMENT_STRESS"]
-    orchestrator["Journey Orchestrator<br/>templates, progress, deduplication"]
-    agents["Micro-Agents<br/>Acquisition, Lifestyle, Engagement"]
-    execution["Consent And Execution Engine<br/>approve/reject, mock actions"]
-  end
+| Layer | Responsibility |
+|---|---|
+| **Experience** | React dashboard, journey tracker, AI agent cards, and real-time updates. |
+| **Event Gateway** | FastAPI ingestion through `POST /events`, validation, persistence, and streaming. |
+| **Intelligence** | Life-event detection, journey orchestration, and bounded micro-agent recommendations. |
+| **Execution Guard** | Consent capture, approve/reject handling, mock banking execution, and journey advancement. |
+| **Data & Audit** | MongoDB collections for events, journeys, consents, executed actions, and immutable audit logs. |
 
-  subgraph data["Data And Messaging Layer"]
-    kafka["Kafka Topics<br/>transaction-events, life-events, agent-commands"]
-    mongo[("MongoDB<br/>events, life_events, journeys, agent_actions, consents, executed_actions, audit_log")]
-    sse["Server-Sent Events<br/>real-time UI updates"]
-  end
-
-  audit["Immutable Audit Trail<br/>traceable journey_id, customer_id, action_id"]
-
-  customer --> frontend
-  frontend --> ingestion
-  ingestion --> mongo
-  ingestion --> kafka
-  kafka --> detector
-  detector --> mongo
-  detector --> orchestrator
-  orchestrator --> mongo
-  orchestrator --> agents
-  agents --> sse
-  sse --> frontend
-  frontend --> execution
-  execution --> mongo
-  execution --> audit
-
-  classDef experience fill:#dbeafe,stroke:#2563eb,color:#0f172a
-  classDef intelligence fill:#ccfbf1,stroke:#0f766e,color:#0f172a
-  classDef data fill:#fef3c7,stroke:#b45309,color:#0f172a
-  classDef audit fill:#fee2e2,stroke:#dc2626,color:#0f172a
-
-  class frontend,customer experience
-  class ingestion,detector,orchestrator,agents,execution intelligence
-  class kafka,mongo,sse data
-  class audit audit
-```
-
-For implementation-level details, see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
+For the visual flow, see the interactive Data Flow diagram below. For implementation-level details, see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ---
 
