@@ -87,86 +87,92 @@ For implementation-level details, see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Data Flow
 
+GitHub README files do not support custom JavaScript, so this section uses a GitHub-native Mermaid diagram plus expandable step details.
+
+```mermaid
+flowchart TD
+  txn["Customer Transaction<br/>salary, rent, card, app activity"] --> ingest["Event Ingestion<br/>POST /events"]
+  ingest --> events[("MongoDB<br/>events collection")]
+
+  subgraph detector["Life-Event Detector"]
+    first["FIRST_SALARY<br/>large credit + employer keywords<br/>first occurrence check"]
+    relocation["RELOCATION<br/>rent in new city<br/>vs historical locations"]
+    stress["PAYMENT_STRESS<br/>EMI, penalty, late fee<br/>or frequent small debits"]
+  end
+
+  ingest --> first
+  ingest --> relocation
+  ingest --> stress
+  first --> detected["Life Event Detected"]
+  relocation --> detected
+  stress --> detected
+  detected --> journey["Journey Orchestrator<br/>template-based journey<br/>24h deduplication"]
+  journey --> journeys[("MongoDB<br/>journeys collection")]
+  journey --> agent["Micro-Agent<br/>personalized recommendation<br/>confidence score"]
+  agent --> llm["Optional Gemini LLM<br/>mock fallback available"]
+  agent --> sse["SSE Push<br/>real-time frontend update"]
+  sse --> decision{"User Decision"}
+
+  decision -->|Approve| execute["Execute Action<br/>open account, setup UPI,<br/>start SIP, autopay, EMI restructure"]
+  decision -->|Reject| rejection["Log Rejection<br/>audit trail recorded"]
+  execute --> advance["Advance Journey Step<br/>progress tracking until completion"]
+  advance --> audit[("Immutable Audit Log<br/>every decision recorded")]
+  rejection --> audit
+
+  classDef input fill:#dbeafe,stroke:#2563eb,color:#0f172a
+  classDef processing fill:#ccfbf1,stroke:#0f766e,color:#0f172a
+  classDef data fill:#fef3c7,stroke:#b45309,color:#0f172a
+  classDef decision fill:#ede9fe,stroke:#7c3aed,color:#0f172a
+  classDef audit fill:#fee2e2,stroke:#dc2626,color:#0f172a
+
+  class txn,sse input
+  class ingest,first,relocation,stress,detected,journey,agent,llm,execute,advance,rejection processing
+  class events,journeys data
+  class decision decision
+  class audit audit
 ```
-                    ┌─────────────┐
-                    │  Customer   │
-                    │ Transaction │
-                    └──────┬──────┘
-                           │
-                           ▼
-                 ┌─────────────────┐
-                 │ Event Ingestion │──────── Store in MongoDB
-                 │   POST /events  │
-                 └────────┬────────┘
-                          │
-                          ▼
-              ┌───────────────────────┐
-              │  Life-Event Detector  │
-              │                       │
-              │  ┌─────────────────┐  │
-              │  │ FIRST_SALARY    │  │──── Large credit + employer keywords
-              │  │                 │  │     + first occurrence check
-              │  ├─────────────────┤  │
-              │  │ RELOCATION      │  │──── Rent in new city vs historical
-              │  │                 │  │     transaction locations
-              │  ├─────────────────┤  │
-              │  │ PAYMENT_STRESS  │  │──── Stress keywords (EMI, penalty)
-              │  │                 │  │     OR high-frequency small debits
-              │  └─────────────────┘  │
-              └───────────┬───────────┘
-                          │ Life event detected
-                          ▼
-              ┌───────────────────────┐
-              │  Journey Orchestrator │
-              │                       │
-              │  Creates multi-step   │
-              │  journey from         │──── 24h deduplication
-              │  template             │     prevents duplicates
-              └───────────┬───────────┘
-                          │ Journey created
-                          ▼
-              ┌───────────────────────┐
-              │    Micro-Agent        │
-              │                       │
-              │  Generates personalized│
-              │  recommendation with  │──── Optional Gemini LLM
-              │  confidence score     │     with mock fallback
-              └───────────┬───────────┘
-                          │ SSE push to frontend
-                          ▼
-              ┌───────────────────────┐
-              │   User Decision       │
-              │                       │
-              │   ✅ Approve          │
-              │   ❌ Reject           │
-              └───────────┬───────────┘
-                          │
-                ┌─────────┴─────────┐
-                ▼                   ▼
-       ┌──────────────┐    ┌──────────────┐
-       │   Execute     │    │   Log        │
-       │   Action      │    │   Rejection  │
-       │               │    │              │
-       │  • Open acct  │    │  Audit trail │
-       │  • Setup UPI  │    │  recorded    │
-       │  • Start SIP  │    └──────────────┘
-       │  • Auto-pay   │
-       │  • EMI restr. │
-       └──────┬───────┘
-              │
-              ▼
-       ┌──────────────┐
-       │ Advance       │
-       │ Journey Step  │──── Progress tracking
-       │               │     until completion
-       └──────┬───────┘
-              │
-              ▼
-       ┌──────────────┐
-       │ Immutable     │
-       │ Audit Log     │──── Every decision recorded
-       └──────────────┘
-```
+
+<details>
+<summary><strong>Step 1: Event ingestion</strong></summary>
+
+A customer banking signal enters through `POST /events`. The event is stored in MongoDB and can be published to Kafka in distributed mode.
+
+</details>
+
+<details>
+<summary><strong>Step 2: Life-event detection</strong></summary>
+
+FlowSense checks the incoming event against rule-based detectors for `FIRST_SALARY`, `RELOCATION`, and `PAYMENT_STRESS`. Each detected event includes confidence and trace metadata.
+
+</details>
+
+<details>
+<summary><strong>Step 3: Journey orchestration</strong></summary>
+
+The Journey Orchestrator maps the life event to a journey template, applies 24-hour deduplication, creates a journey record, and tracks step progress.
+
+</details>
+
+<details>
+<summary><strong>Step 4: Micro-agent recommendation</strong></summary>
+
+The relevant bounded micro-agent creates a personalized recommendation card. Gemini can be used for dynamic copy, with deterministic mock fallback for demos.
+
+</details>
+
+<details>
+<summary><strong>Step 5: Consent and execution</strong></summary>
+
+The user approves or rejects the action. Approved actions go through the execution layer; rejected actions are still recorded for auditability.
+
+</details>
+
+<details>
+<summary><strong>Step 6: Audit trail</strong></summary>
+
+Every event, detection, journey, recommendation, consent, execution, and rejection is written to the audit trail with traceable IDs.
+
+</details>
 
 ---
 
