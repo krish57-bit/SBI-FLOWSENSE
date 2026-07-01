@@ -396,6 +396,8 @@ cd frontend && npm run dev
 | [PRD.md](docs/PRD.md) | Product requirements, personas, success criteria |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Detailed system architecture and design decisions |
 | [plan.md](docs/plan.md) | Project plan with 8 epics and task tracking |
+| [PHASE_1_SUBMISSION.md](docs/PHASE_1_SUBMISSION.md) | SBI Hackathon Phase 1 idea submission write-up |
+| [PHASE_1_IDEA_DECK.md](docs/PHASE_1_IDEA_DECK.md) | Slide-by-slide Phase 1 idea deck script |
 | [WINNING_GUIDE.md](docs/WINNING_GUIDE.md) | Judge-focused demo, deck, and final-week checklist |
 | [CLAUDE_CONTEXT.md](docs/CLAUDE_CONTEXT.md) | AI coding context and development guide |
 
