@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 120" fill="none">
+  <rect width="580" height="120" rx="12" fill="#0A00B5"/>
+  <!-- SB text -->
+  <text x="30" y="92" font-family="Arial Black, Impact, sans-serif" font-weight="900" font-size="88" fill="#FFFFFF" letter-spacing="-2">SB</text>
+  <!-- Dollar circle -->
+  <circle cx="195" cy="60" r="38" stroke="#FFFFFF" stroke-width="5" fill="none"/>
+  <text x="195" y="80" font-family="Arial Black, Impact, sans-serif" font-weight="900" font-size="56" fill="#FFFFFF" text-anchor="middle">$</text>
+  <!-- SENSE text in cyan -->
+  <text x="248" y="92" font-family="Arial Black, Impact, sans-serif" font-weight="900" font-size="88" fill="#00E5C8" letter-spacing="-2">SENSE</text>
+</svg>
