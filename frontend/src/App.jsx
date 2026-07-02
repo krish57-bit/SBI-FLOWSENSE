@@ -49,6 +49,18 @@ function formatDate() {
   return new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
+function matchesSearch(text, query) {
+  if (!query) return true
+  return (text || '').toLowerCase().includes(query.toLowerCase())
+}
+
 // ─── Login Screen ───
 function LoginScreen({ onLogin }) {
   const [step, setStep] = useState('welcome') // welcome, account, mpin
@@ -357,6 +369,12 @@ function InterventionCard({ action, onConsent, consentState }) {
     : action.life_event === 'PAYMENT_STRESS' ? '🛡️'
     : '🤖'
 
+  const actionLabel = action.action_label
+    || (action.life_event === 'FIRST_SALARY' ? 'Open Salary Account'
+    : action.life_event === 'RELOCATION' ? 'Set Up Auto-Pay'
+    : action.life_event === 'PAYMENT_STRESS' ? 'Restructure EMI'
+    : 'Approve Action')
+
   const state = consentState[action.id]
   const isPending = state === 'pending'
   const isApproved = state === 'APPROVED'
@@ -385,9 +403,9 @@ function InterventionCard({ action, onConsent, consentState }) {
       {!isDone && (
         <div className="agent-card__actions">
           <button className="btn btn--primary" disabled={isPending} onClick={() => onConsent(action, 'APPROVED')}>
-            {isPending ? <span className="login__spinner" /> : (action.action_label || 'Take Action')}
+            {isPending ? <span className="login__spinner" /> : <>{I.check} {actionLabel}</>}
           </button>
-          <button className="btn btn--outline" disabled={isPending} onClick={() => onConsent(action, 'REJECTED')}>Dismiss</button>
+          <button className="btn btn--outline" disabled={isPending} onClick={() => onConsent(action, 'REJECTED')}>Not Now</button>
         </div>
       )}
     </div>
@@ -480,6 +498,8 @@ function App() {
   const [toast, setToast] = useState(null)
   const [showNotif, setShowNotif] = useState(false)
   const [demoCollapsed, setDemoCollapsed] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [txnFilter, setTxnFilter] = useState('all')
   const eventSourceRef = useRef(null)
 
   function handleLogin(userData) {
@@ -596,7 +616,7 @@ function App() {
       <div className="main">
         <header className="header">
           <div className="header__left">
-            <h1 className="header__greeting">Welcome back, {user.name.split(' ')[0]}</h1>
+            <h1 className="header__greeting">{getGreeting()}, {user.name.split(' ')[0]}</h1>
             <span className="header__date">{formatDate()}</span>
           </div>
           <div className="header__right">
@@ -610,7 +630,16 @@ function App() {
             </button>
             <div className="header__search">
               {I.search}
-              <input type="text" placeholder="Search transactions..." className="header__search-input" />
+              <input
+                type="text"
+                placeholder={activeTab === 'transactions' ? 'Search by merchant, city...' : activeTab === 'agents' ? 'Search recommendations...' : activeTab === 'journeys' ? 'Search journeys...' : 'Search...'}
+                className="header__search-input"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button className="header__search-clear" onClick={() => setSearchQuery('')}>{I.close}</button>
+              )}
             </div>
           </div>
         </header>
@@ -722,78 +751,136 @@ function App() {
           )}
 
           {/* ─── Transactions Tab ─── */}
-          {activeTab === 'transactions' && (
-            <div className="card card--full">
-              <div className="card__header"><span className="card__title">Transaction History</span><span className="card__badge card__badge--live">{connected ? 'LIVE' : 'OFFLINE'}</span></div>
-              <div className="txn-list">
-                {events.length === 0 ? (
-                  <div className="empty-sm">No transactions yet. Use Demo Controls to simulate banking events.</div>
-                ) : (
-                  events.map((e, i) => <TransactionRow key={e.event_id || i} event={e} />)
-                )}
+          {activeTab === 'transactions' && (() => {
+            const filtered = events
+              .filter(e => txnFilter === 'all' || e.type === txnFilter)
+              .filter(e => matchesSearch(e.merchant, searchQuery) || matchesSearch(e.city, searchQuery) || matchesSearch(String(e.amount), searchQuery))
+            return (
+              <div className="card card--full">
+                <div className="card__header">
+                  <span className="card__title">Transaction History</span>
+                  <div className="card__header-right">
+                    <span className="card__badge card__badge--live">{connected ? 'LIVE' : 'OFFLINE'}</span>
+                  </div>
+                </div>
+                <div className="filter-tabs">
+                  <button className={`filter-tab ${txnFilter === 'all' ? 'filter-tab--active' : ''}`} onClick={() => setTxnFilter('all')}>All ({events.length})</button>
+                  <button className={`filter-tab ${txnFilter === 'CREDIT' ? 'filter-tab--active filter-tab--credit' : ''}`} onClick={() => setTxnFilter('CREDIT')}>Money In ({events.filter(e => e.type === 'CREDIT').length})</button>
+                  <button className={`filter-tab ${txnFilter === 'DEBIT' ? 'filter-tab--active filter-tab--debit' : ''}`} onClick={() => setTxnFilter('DEBIT')}>Money Out ({events.filter(e => e.type === 'DEBIT').length})</button>
+                </div>
+                <div className="txn-list">
+                  {filtered.length === 0 ? (
+                    <div className="empty-sm">{events.length === 0 ? 'No transactions yet. Use Demo Controls below to simulate banking events.' : 'No transactions match your search.'}</div>
+                  ) : (
+                    filtered.map((e, i) => <TransactionRow key={e.event_id || i} event={e} />)
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )
+          })()}
 
           {/* ─── Journeys Tab ─── */}
-          {activeTab === 'journeys' && (
-            <div className="card card--full">
-              <div className="card__header">
-                <span className="card__title">Your Journeys</span>
-                {journeys.length > 0 && <span className="card__badge card__badge--green">{journeys.filter(j => j.status === 'ACTIVE').length} active</span>}
+          {activeTab === 'journeys' && (() => {
+            const filtered = journeys.filter(j => matchesSearch(j.name, searchQuery) || matchesSearch(j.agent, searchQuery))
+            return (
+              <div className="card card--full">
+                <div className="card__header">
+                  <span className="card__title">Your Journeys</span>
+                  {journeys.length > 0 && <span className="card__badge card__badge--green">{journeys.filter(j => j.status === 'ACTIVE').length} active</span>}
+                </div>
+                {filtered.length === 0 ? (
+                  <div className="empty-lg">
+                    <div className="empty-lg__icon">{I.journeys}</div>
+                    <div className="empty-lg__title">{journeys.length === 0 ? 'No journeys yet' : 'No matching journeys'}</div>
+                    <div className="empty-lg__sub">{journeys.length === 0 ? 'Journeys start automatically when AI agents detect life events from your transaction patterns.' : 'Try a different search term.'}</div>
+                  </div>
+                ) : (
+                  <div className="journey-grid">
+                    {filtered.map(j => <JourneyCard key={j.journey_id} journey={j} />)}
+                  </div>
+                )}
               </div>
-              {journeys.length === 0 ? (
-                <div className="empty-lg">
-                  <div className="empty-lg__icon">{I.journeys}</div>
-                  <div className="empty-lg__title">No journeys yet</div>
-                  <div className="empty-lg__sub">Journeys start automatically when AI agents detect life events from your transaction patterns.</div>
-                </div>
-              ) : (
-                <div className="journey-grid">
-                  {journeys.map(j => <JourneyCard key={j.journey_id} journey={j} />)}
-                </div>
-              )}
-            </div>
-          )}
+            )
+          })()}
 
           {/* ─── Agents Tab ─── */}
-          {activeTab === 'agents' && (
-            <div className="card card--full">
-              <div className="card__header">
-                <span className="card__title">AI Agent Recommendations</span>
-                {actions.length > 0 && <span className="card__badge card__badge--purple">{pendingActions.length} pending</span>}
+          {activeTab === 'agents' && (() => {
+            const filtered = actions.filter(a => matchesSearch(a.title, searchQuery) || matchesSearch(a.message, searchQuery) || matchesSearch(a.life_event, searchQuery))
+            return (
+              <div className="card card--full">
+                <div className="card__header">
+                  <span className="card__title">AI Agent Recommendations</span>
+                  {actions.length > 0 && <span className="card__badge card__badge--purple">{pendingActions.length} pending</span>}
+                </div>
+                {filtered.length === 0 ? (
+                  <div className="empty-lg">
+                    <div className="empty-lg__icon">{I.agents}</div>
+                    <div className="empty-lg__title">{actions.length === 0 ? 'No recommendations yet' : 'No matching recommendations'}</div>
+                    <div className="empty-lg__sub">{actions.length === 0 ? 'AI agents are monitoring your transactions. Simulate a banking event to see them in action.' : 'Try a different search term.'}</div>
+                  </div>
+                ) : (
+                  <div className="agents-grid">
+                    {filtered.map((a, i) => <InterventionCard key={a.id || i} action={a} onConsent={handleConsent} consentState={consentState} />)}
+                  </div>
+                )}
               </div>
-              {actions.length === 0 ? (
-                <div className="empty-lg">
-                  <div className="empty-lg__icon">{I.agents}</div>
-                  <div className="empty-lg__title">No recommendations yet</div>
-                  <div className="empty-lg__sub">AI agents are monitoring your transactions. They'll recommend actions when they detect important life events.</div>
-                </div>
-              ) : (
-                <div className="agents-grid">
-                  {actions.map((a, i) => <InterventionCard key={a.id || i} action={a} onConsent={handleConsent} consentState={consentState} />)}
-                </div>
-              )}
-            </div>
-          )}
+            )
+          })()}
 
           {/* ─── Settings Tab ─── */}
           {activeTab === 'settings' && (
-            <div className="card card--full">
-              <div className="card__header"><span className="card__title">Account Settings</span></div>
-              <div className="settings-grid">
-                <div className="settings-section">
-                  <h3 className="settings-section__title">Profile</h3>
-                  <div className="setting-item"><span className="setting-item__label">Name</span><span className="setting-item__value">{user.name}</span></div>
-                  <div className="setting-item"><span className="setting-item__label">Customer ID</span><span className="setting-item__value">{user.customerId}</span></div>
-                  <div className="setting-item"><span className="setting-item__label">Account</span><span className="setting-item__value">{user.accountNo || 'XXXX4521'}</span></div>
+            <div className="settings-layout">
+              <div className="card">
+                <div className="card__header"><span className="card__title">Account Information</span></div>
+                <div className="settings-grid">
+                  <div className="settings-section">
+                    <h3 className="settings-section__title">Personal Details</h3>
+                    <div className="setting-item"><span className="setting-item__label">Full Name</span><span className="setting-item__value">{user.name}</span></div>
+                    <div className="setting-item"><span className="setting-item__label">Customer ID</span><span className="setting-item__value">{user.customerId}</span></div>
+                    <div className="setting-item"><span className="setting-item__label">Account Number</span><span className="setting-item__value">{user.accountNo || 'XXXX XXXX XXXX 4521'}</span></div>
+                    <div className="setting-item"><span className="setting-item__label">Account Type</span><span className="setting-item__value">Savings Account</span></div>
+                    <div className="setting-item"><span className="setting-item__label">Branch</span><span className="setting-item__value">SBI Mumbai Main Branch</span></div>
+                    <div className="setting-item"><span className="setting-item__label">IFSC Code</span><span className="setting-item__value setting-item__value--mono">SBIN0000001</span></div>
+                  </div>
                 </div>
-                <div className="settings-section">
-                  <h3 className="settings-section__title">System</h3>
-                  <div className="setting-item"><span className="setting-item__label">API Gateway</span><span className="setting-item__value setting-item__value--mono">{API_BASE}</span></div>
-                  <div className="setting-item"><span className="setting-item__label">SSE Status</span><span className={`setting-item__value setting-item__value--${connected ? 'green' : 'red'}`}>{connected ? 'Connected' : 'Disconnected'}</span></div>
-                  <div className="setting-item"><span className="setting-item__label">AI Agents</span><span className="setting-item__value">Acquisition, Lifestyle, Engagement</span></div>
-                  <div className="setting-item"><span className="setting-item__label">Mode</span><span className="setting-item__value">Standalone (No Kafka)</span></div>
+              </div>
+              <div className="card">
+                <div className="card__header"><span className="card__title">AI Preferences</span></div>
+                <div className="settings-grid">
+                  <div className="settings-section">
+                    <h3 className="settings-section__title">Agent Configuration</h3>
+                    <div className="setting-item">
+                      <span className="setting-item__label">Smart Recommendations</span>
+                      <span className="setting-item__value setting-item__value--green">Enabled</span>
+                    </div>
+                    <div className="setting-item">
+                      <span className="setting-item__label">Life Event Detection</span>
+                      <span className="setting-item__value setting-item__value--green">Active</span>
+                    </div>
+                    <div className="setting-item">
+                      <span className="setting-item__label">Real-time Alerts</span>
+                      <span className={`setting-item__value setting-item__value--${connected ? 'green' : 'red'}`}>{connected ? 'Connected' : 'Disconnected'}</span>
+                    </div>
+                    <div className="setting-item">
+                      <span className="setting-item__label">Active AI Agents</span>
+                      <span className="setting-item__value">Acquisition, Lifestyle, Engagement</span>
+                    </div>
+                  </div>
+                  <div className="settings-section">
+                    <h3 className="settings-section__title">Privacy & Consent</h3>
+                    <div className="setting-item">
+                      <span className="setting-item__label">Consent Mode</span>
+                      <span className="setting-item__value">Ask before every action</span>
+                    </div>
+                    <div className="setting-item">
+                      <span className="setting-item__label">Audit Trail</span>
+                      <span className="setting-item__value setting-item__value--green">Enabled</span>
+                    </div>
+                    <div className="setting-item">
+                      <span className="setting-item__label">Data Encryption</span>
+                      <span className="setting-item__value">256-bit AES</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

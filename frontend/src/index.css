@@ -956,6 +956,50 @@ button { cursor: pointer; font-family: inherit; }
 .setting-item__value--green { color: var(--green); }
 .setting-item__value--red { color: var(--red); }
 
+/* ===== SEARCH CLEAR ===== */
+.header__search-clear {
+  border: none; background: none; padding: 2px;
+  color: var(--text-muted); display: flex;
+  cursor: pointer; transition: color 0.2s;
+}
+.header__search-clear:hover { color: var(--text-primary); }
+.header__search-clear svg { width: 14px; height: 14px; }
+.header__search:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(0,153,122,0.08);
+}
+
+/* ===== FILTER TABS ===== */
+.filter-tabs {
+  display: flex; gap: 4px;
+  padding: 4px;
+  background: var(--bg-body);
+  border-radius: var(--r-md);
+  margin-bottom: 16px;
+}
+.filter-tab {
+  flex: 1; padding: 8px 16px;
+  border: none; background: transparent;
+  font-size: 13px; font-weight: 600;
+  color: var(--text-muted);
+  border-radius: var(--r-sm);
+  cursor: pointer; transition: all 0.2s;
+  font-family: inherit;
+}
+.filter-tab:hover { color: var(--text-secondary); background: rgba(255,255,255,0.5); }
+.filter-tab--active {
+  background: var(--bg-card); color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+.filter-tab--active.filter-tab--credit { color: var(--green); }
+.filter-tab--active.filter-tab--debit { color: var(--red); }
+
+/* ===== CARD HEADER RIGHT ===== */
+.card__header-right { display: flex; align-items: center; gap: 8px; }
+
+/* ===== SETTINGS LAYOUT ===== */
+.settings-layout { display: flex; flex-direction: column; gap: 20px; }
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
